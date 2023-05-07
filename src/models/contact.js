@@ -1,26 +1,31 @@
 const mongoose = require('mongoose');
 const Joi = require('joi');
-
-const phoneRegex = /^[0-9\-\+]{9,15}$/;
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+const { emailRegexp, phoneRegexp } = require('./regexps');
 
 const Schema = mongoose.Schema;
 
-const contactSchema = new Schema({
-  name: { type: String, required: [true, `missing required name field`] },
-  email: { type: String, required: [true, `missing required email field`], match: emailRegex },
-  phone: { type: String, required: [true, `missing required phone field`], match: phoneRegex },
-  favorite: { type: Boolean, default: false },
-});
+const contactSchema = new Schema(
+  {
+    name: { type: String, required: [true, `missing required name field`] },
+    email: { type: String, required: [true, `missing required email field`], match: emailRegexp },
+    phone: { type: String, required: [true, `missing required phone field`], match: phoneRegexp },
+    favorite: { type: Boolean, default: false },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: 'user',
+    },
+  },
+  { versionKey: false },
+);
 
 const postSchema = Joi.object({
   name: Joi.string().min(3).max(16).required().messages({
     'any.required': `missing required name field`,
   }),
-  email: Joi.string().pattern(emailRegex).required().messages({
+  email: Joi.string().pattern(emailRegexp).required().messages({
     'any.required': `missing required email field`,
   }),
-  phone: Joi.string().pattern(phoneRegex).required().messages({
+  phone: Joi.string().pattern(phoneRegexp).required().messages({
     'any.required': `missing required phone field`,
   }),
   favorite: Joi.boolean().default(false),
@@ -28,8 +33,8 @@ const postSchema = Joi.object({
 
 const putSchema = Joi.object({
   name: Joi.string().min(3).max(16),
-  email: Joi.string().pattern(emailRegex),
-  phone: Joi.string().pattern(phoneRegex),
+  email: Joi.string().pattern(emailRegexp),
+  phone: Joi.string().pattern(phoneRegexp),
   favorite: Joi.boolean(),
 });
 
