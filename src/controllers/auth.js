@@ -8,7 +8,7 @@ const { SECRET_KEY } = process.env;
 
 const register = async (req, res, next) => {
   try {
-    const { email, password, subscription } = req.body;
+    const { email, password } = req.body;
     const isUser = await User.findOne({ email });
 
     if (isUser) {
@@ -17,7 +17,7 @@ const register = async (req, res, next) => {
 
     const hashPassword = await bcrypt.hash(password, 10);
 
-    await User.create({ ...req.body, password: hashPassword });
+    const { subscription } = await User.create({ ...req.body, password: hashPassword });
 
     res.status(201).json({ user: { email, subscription } });
   } catch (error) {
