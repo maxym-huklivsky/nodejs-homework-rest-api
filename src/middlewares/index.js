@@ -1,4 +1,5 @@
 const isValidId = require('./isValidId');
 const validate = require('./validate');
+const authorizate = require('./authorizate');
 
-module.exports = { isValidId, validate };
+module.exports = { isValidId, validate, authorizate };

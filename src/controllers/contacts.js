@@ -3,8 +3,27 @@ const { HttpError } = require('../helpers');
 
 const listContacts = async (req, res, next) => {
   try {
-    const result = await Contact.find();
-    res.json(result);
+    const { _id: owner } = req.user;
+    const { page = 1, limit = 3, favorite } = req.query;
+
+    const skip = (page - 1) * limit;
+
+    if (favorite) {
+      const totalPages = Math.ceil([...(await Contact.find({ owner, favorite }))].length / limit);
+
+      const data = await Contact.find({ owner, favorite })
+        .skip(skip)
+        .limit(limit)
+        .populate('owner', 'email');
+
+      res.json({ totalPages, page: Number(page), limit: Number(limit), data });
+    }
+
+    const totalPages = [...(await Contact.find({ owner }))].length;
+
+    const data = await Contact.find({ owner }).skip(skip).limit(limit).populate('owner', 'email');
+
+    res.json({ totalPages, page: Number(page), limit: Number(limit), data });
   } catch (error) {
     next(error);
   }
@@ -27,9 +46,9 @@ const getContactById = async (req, res, next) => {
 
 const addContact = async (req, res, next) => {
   try {
-    const { body } = req;
+    const { _id: owner } = req.user;
 
-    const result = await Contact.create(body);
+    const result = await Contact.create({ ...req.body, owner });
     res.status(201).json(result);
   } catch (error) {
     next(error);
