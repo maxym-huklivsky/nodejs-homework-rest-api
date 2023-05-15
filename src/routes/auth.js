@@ -8,6 +8,8 @@ const {
   logout,
   updateSubscription,
   updateAvatar,
+  verificationEmail,
+  resendVerifyEmail,
 } = require('../controllers/auth');
 const { authorizate, upload } = require('../middlewares');
 
@@ -24,5 +26,9 @@ router.get('/current', authorizate, getCurrent);
 router.patch('/', authorizate, validate(schemas.subscriptionSchema), updateSubscription);
 
 router.patch('/avatars', authorizate, upload.single('avatar'), updateAvatar);
+
+router.get('/verify/:verificationToken', verificationEmail);
+
+router.post('/verify', validate(schemas.vefifyEmail), resendVerifyEmail);
 
 module.exports = router;
